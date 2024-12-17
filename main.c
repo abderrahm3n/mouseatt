@@ -1,11 +1,19 @@
 #include<math.h>
 #include<stdio.h>
 #include<raylib.h>
+#include <sys/types.h>
 
 Vector2 map(Vector2 a,int width,int height){
   Vector2 l ;
   l.x = ((a.x+0.5)/2)*width;
   l.y = ((a.y+0.5)/2)*height;
+  return l;
+}
+
+Vector2 unmap(Vector2 a,int width,int height){
+  Vector2 l ;
+  l.x = ((a.x/width)*2)-0.5;
+  l.y = ((a.y/height)*2)-0.5;
   return l;
 }
 
@@ -51,16 +59,18 @@ struct ball{
   b[1].acc = (Vector2){0.,0.};
   b[2].acc = (Vector2){0.,0.};
   
-
-  SetTargetFPS(1);
+  uint time = 0;
+  SetTargetFPS(30);
   while(!WindowShouldClose()){
-    Vector2 mousexy = GetMousePosition();
+    Vector2 mousexy = (Vector2)unmap((Vector2) GetMousePosition(),screenwidth,screenheight);
 
+    float dt = 0.1;
     for(int i = 0;i<n;i++){
-      Vector2 tacc = mousexy;
-      Vector2 tspeed = b[i].speed;
-      b[i].speed = addvect(b[i].speed,getvect(b[i].acc,tacc));
-      b[i].pos = addvect(b[i].pos,getvect(b[i].speed,tspeed));
+      b[i].acc = getvect(mousexy,b[i].pos);
+      b[i].speed.x += b[i].acc.x*dt;
+      b[i].pos.x += b[i].speed.x*dt;
+      b[i].speed.y += b[i].acc.y*dt;
+      b[i].pos.y += b[i].speed.y*dt;
     }
 
 
